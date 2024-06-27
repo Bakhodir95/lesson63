@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class Clock extends StatefulWidget {
-  const Clock({super.key});
+  const Clock({Key? key}) : super(key: key);
 
   @override
   State<Clock> createState() => _ClockState();
@@ -17,7 +17,7 @@ class _ClockState extends State<Clock> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _now = DateTime.now();
       });
@@ -37,44 +37,38 @@ class _ClockState extends State<Clock> {
     double hourAngle = (_now.hour % 12 + _now.minute / 60) * 2 * pi / 12;
 
     return Scaffold(
-      body: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Clock background
-            CustomPaint(
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          CustomPaint(
+            size: const Size(300, 300),
+            painter: ClockPainter(),
+          ),
+          AnimatedRotation(
+            duration: const Duration(seconds: 1),
+            turns: secondAngle / (2 * pi),
+            child: CustomPaint(
               size: const Size(300, 300),
-              painter: ClockPainter(),
+              painter: SecondHandPainter(),
             ),
-            // Second hand
-            AnimatedRotation(
-              duration: const Duration(seconds: 1),
-              turns: secondAngle / (2 * pi),
-              child: CustomPaint(
-                size: const Size(300, 300),
-                painter: SecondHandPainter(),
-              ),
+          ),
+          AnimatedRotation(
+            duration: const Duration(seconds: 1),
+            turns: minuteAngle / (2 * pi),
+            child: CustomPaint(
+              size: const Size(300, 300),
+              painter: MinuteHandPainter(),
             ),
-            // Minute hand
-            AnimatedRotation(
-              duration: const Duration(seconds: 1),
-              turns: minuteAngle / (2 * pi),
-              child: CustomPaint(
-                size: const Size(300, 300),
-                painter: MinuteHandPainter(),
-              ),
+          ),
+          AnimatedRotation(
+            duration: const Duration(seconds: 1),
+            turns: hourAngle / (2 * pi),
+            child: CustomPaint(
+              size: const Size(300, 300),
+              painter: HourHandPainter(),
             ),
-            // Hour hand
-            AnimatedRotation(
-              duration: const Duration(seconds: 1),
-              turns: hourAngle / (2 * pi),
-              child: CustomPaint(
-                size: const Size(300, 300),
-                painter: HourHandPainter(),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -84,7 +78,7 @@ class ClockPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.blue
+      ..color = Colors.green
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(
@@ -96,7 +90,7 @@ class ClockPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+    return false;
   }
 }
 
@@ -104,7 +98,7 @@ class SecondHandPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final linePaint = Paint()
-      ..color = Colors.red
+      ..color = Colors.black
       ..style = PaintingStyle.stroke
       ..strokeWidth = 5
       ..strokeCap = StrokeCap.round;
@@ -118,7 +112,7 @@ class SecondHandPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+    return false;
   }
 }
 
@@ -140,7 +134,7 @@ class MinuteHandPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+    return false;
   }
 }
 
@@ -148,7 +142,7 @@ class HourHandPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final linePaint = Paint()
-      ..color = Colors.black
+      ..color = Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = 10
       ..strokeCap = StrokeCap.round;
@@ -167,6 +161,27 @@ class HourHandPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+    return false;
+  }
+}
+
+class AnimatedRotation extends StatelessWidget {
+  final Duration duration;
+  final double turns;
+  final Widget child;
+
+  const AnimatedRotation({
+    Key? key,
+    required this.duration,
+    required this.turns,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return RotationTransition(
+      turns: AlwaysStoppedAnimation(turns),
+      child: child,
+    );
   }
 }
